@@ -1,0 +1,70 @@
+//Colors
+$color-black: #000;
+$color-white: #fff;
+$color-gray-light: #eeeeee;
+$color-gray: #cfd2cf;
+$color-gray-dark: #73777b;
+
+$color-primary: #cac2c5;
+$color-secondary: #eb4335;
+
+//Font-size
+$font-s: 1.6rem;
+$font-m: 2.4rem;
+$font-l: 3rem;
+$font-xl: 3.6rem;
+$font-xxl: 6rem;
+
+//Font-family
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+$main-font: 'Prompt', sans-serif;
+$sub-font: 'Ubuntu', sans-serif;
+
+//Heading
+@mixin mainheading {
+  font-family: $main-font;
+  font-size: $font-l;
+  font-weight: 700;
+
+  @media (max-width: $phone) {
+  }
+}
+
+//responsive breakpoint
+$phone: 43.75em;
+$tablet: 75em;
+$mid-screen: 100em;
+
+//animation
+@keyframes spinner {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  50% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) rotate(720deg);
+  }
+}
+
+@keyframes showing {
+  0% {
+    opacity: inherit;
+  }
+
+  50% {
+    opacity: 0.2;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}

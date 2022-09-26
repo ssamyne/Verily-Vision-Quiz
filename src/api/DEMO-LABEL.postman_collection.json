@@ -1,0 +1,82 @@
+{
+  "info": {
+    "_postman_id": "f35ab231-e079-45b8-b257-637d3cd9d8ab",
+    "name": "DEMO-LABEL",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET_ALL_IMAGE",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://13.213.36.162:3000/api/image/v1",
+          "protocol": "http",
+          "host": ["13", "213", "36", "162"],
+          "port": "3000",
+          "path": ["api", "image", "v1"]
+        },
+        "description": "เรียกข้อมูลรูปภาพทั้งหมด พร้อมชื่อรูป"
+      },
+      "response": []
+    },
+    {
+      "name": "GET_IMAGE_INFO",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://13.213.36.162:3000/api/image/v1/6329e7f6b620620012c032b6",
+          "protocol": "http",
+          "host": ["13", "213", "36", "162"],
+          "port": "3000",
+          "path": ["api", "image", "v1", "6329e7f6b620620012c032b6"]
+        },
+        "description": "เรียกดูเฉพาะรูปภาพนั้นๆ"
+      },
+      "response": []
+    },
+    {
+      "name": "GET_LABEL",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://13.213.36.162:3000/api/label/v1/6329e837b620620012c032be",
+          "protocol": "http",
+          "host": ["13", "213", "36", "162"],
+          "port": "3000",
+          "path": ["api", "label", "v1", "6329e837b620620012c032be"]
+        },
+        "description": "เรียกดูข้อมูล LABEL ด้วย _id"
+      },
+      "response": []
+    },
+    {
+      "name": "CREATE_LABEL",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"image_name\": \"demo-1\",\r\n    \"image_label\": \"porche\",\r\n    \"plate\": {\r\n        \"coor\": [\r\n            \"left\",\r\n            \"top\",\r\n            \"width\",\r\n            \"heihgt\"\r\n        ]\r\n    }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://13.213.36.162:3000/api/label/v1/create_label",
+          "protocol": "http",
+          "host": ["13", "213", "36", "162"],
+          "port": "3000",
+          "path": ["api", "label", "v1", "create_label"]
+        },
+        "description": "สร้าง LABEL โดย input จะมี \r\n    1.  \"image_label\" หมายถึงยี่ห้อรถภายในรูป (ex. toyota, honda etc.)\r\n    2.  \"plate\": [100,200,300,400]\r\n        หมายถึงตำแหน่งของป้ายทะเบียน โดยภายใน Array จะเรียงด้วย\r\n        [x_coordinate, y_coordinate, plate width, plate height]"
+      },
+      "response": []
+    }
+  ]
+}
