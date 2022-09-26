@@ -1,0 +1,14 @@
+@import '../sass/variable.scss';
+
+.navbar {
+  display: flex;
+  height: max-content;
+  padding: 1rem 5%;
+  width: 100%;
+
+  &__brand {
+    display: block;
+    font-family: $main-font;
+    font-size: $font-l;
+  }
+}

@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 import ApplyLayout from './components/ui/ApplyLayout';
+import HomePage from './components/home/HomPage';
 
 function App() {
   const notFoundPage = (
@@ -13,7 +14,7 @@ function App() {
   return (
     <ApplyLayout>
       <Routes>
-        <Route path='/' element={<div>welcome to verily quiz</div>} />
+        <Route path='/' element={<HomePage />} />
         <Route path='*' element={notFoundPage} />
       </Routes>
     </ApplyLayout>
