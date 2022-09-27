@@ -1,14 +1,21 @@
 import styles from './HomePage.module.scss';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import Canvas from './Canvas';
+import SelectedCar from './SelectedCar';
 
-interface CarData {
+export interface CarData {
   _id: string;
   url: string;
   image_name: string;
   created_date: string;
+}
+
+export interface SubmitCarData {
+  _id: string;
+  image_name: string;
+  image_label: string;
+  plate: { coor: number[] };
 }
 
 const HomePage = () => {
@@ -16,17 +23,6 @@ const HomePage = () => {
   const [carsData, setCarsData] = useState<CarData[]>([]);
   // to get current car that should show in selected item
   const [currentCar, setCurrentCar] = useState<CarData | undefined>();
-  // to get image width and heigh ref
-  const imgRef = useRef<HTMLDivElement | null>(null);
-  // set canvas dimension dynamically
-  const [dimension, setDimention] = useState({ width: 0, height: 0 });
-  // for cropping button
-  const [isAllow, setIsAllow] = useState(false);
-
-  // brand input storage
-  const [inputLabel, setInputLabel] = useState('');
-  // Coordinate input storage
-  const [finalCoordinate, setFinalCoordinate] = useState<number[]>([]);
 
   // handle selected item
   const selectHandler = (_id: string) => {
@@ -34,64 +30,16 @@ const HomePage = () => {
     setCurrentCar(selectedCar);
   };
 
-  // close selected item
-  const selectedCloseHandler = () => {
-    setCurrentCar(undefined);
-    setIsAllow(false);
-  };
-
-  const setLabelHandler: React.ChangeEventHandler<HTMLInputElement> = (
-    event
-  ) => {
-    const inputValue = event.target.value;
-    setInputLabel(inputValue);
-  };
-
-  // control user are cropping or not
-  const startCroppingHandler = () => {
-    setIsAllow((prevState) => (prevState = !prevState));
-
-    if (!imgRef.current) return;
-
-    if (!isAllow) {
-      imgRef.current.style.cursor = 'crosshair';
-    } else {
-      imgRef.current.style.cursor = 'unset';
-    }
-  };
-
-  // store final coordinate
-  const setCoorHandler = (coordinate: number[]) => {
-    setFinalCoordinate(coordinate);
+  const selectedCloseHandler = (resetCar: undefined) => {
+    setCurrentCar(resetCar);
   };
 
   // send brand and coordinate via api
-  const submitHandler = () => {
-    if (inputLabel.trim().length === 0) {
-      alert('please put the car brand');
-      return;
-    }
-    if (finalCoordinate.length === 0) {
-      alert('please cropping the car tag plate');
-      return;
-    }
+  const submitHandler = (finalCarData: SubmitCarData) => {
+    console.log(finalCarData);
 
-    console.log(finalCoordinate);
-    console.log(inputLabel);
     alert('submit successfully');
   };
-
-  // for setting canvas dimension
-  useEffect(() => {
-    if (!imgRef.current) return;
-
-    setDimention({
-      width: imgRef.current.offsetWidth,
-      height: imgRef.current.offsetHeight,
-    });
-
-    imgRef.current.style.backgroundImage = `url(${currentCar?.url})`;
-  }, [currentCar]);
 
   // fetching cars data first openning
   useEffect(() => {
@@ -126,78 +74,11 @@ const HomePage = () => {
     <div className={styles.home}>
       <div className={styles.home__main}>
         {currentCar && (
-          <div className={styles.selected}>
-            <div
-              className={styles.selected__backdrop}
-              onClick={selectedCloseHandler}
-            ></div>
-            <div className={styles.selected__container}>
-              <div className={styles.selected__image} ref={imgRef}>
-                <Canvas
-                  props={{ width: dimension.width, height: dimension.height }}
-                  isAllow={isAllow}
-                  passCoor={setCoorHandler}
-                />
-              </div>
-              <div className={styles.selected__tools}>
-                <button
-                  className={styles.btn_close}
-                  onClick={selectedCloseHandler}
-                >
-                  <img src='/images/close.png' alt='X' />
-                </button>
-                <h2 className={styles.tools__heading}>
-                  {currentCar.image_name}
-                </h2>
-                <label className={styles.tools__label} htmlFor={currentCar._id}>
-                  Brand &#x3A;
-                </label>
-                <input
-                  className={styles.tools__input}
-                  id={currentCar._id}
-                  type='text'
-                  placeholder='Car Brand'
-                  autoComplete='off'
-                  onChange={setLabelHandler}
-                  value={inputLabel}
-                  required
-                  list='brand'
-                />
-                <datalist id='brand'>
-                  <option value='Audi' />
-                  <option value='BMW' />
-                  <option value='Chevrolet' />
-                  <option value='Fiat' />
-                  <option value='Fiat' />
-                  <option value='Honda' />
-                  <option value='Hyundai' />
-                  <option value='Porche' />
-                  <option value='Tesla' />
-                  <option value='Toyota' />
-                  <option value='Volvo' />
-                </datalist>
-                <button
-                  className={styles.btn_main}
-                  onClick={startCroppingHandler}
-                >
-                  {!isAllow ? (
-                    <div>
-                      <img src='/images/crop.png' alt='crop' />
-                      <p>Crop Car Tag</p>
-                    </div>
-                  ) : (
-                    <div>
-                      <img src='/images/crop.png' alt='crop' />
-                      <p>Finished</p>
-                    </div>
-                  )}
-                </button>
-                <button className={styles.btn_submit} onClick={submitHandler}>
-                  Submit
-                </button>
-              </div>
-            </div>
-          </div>
+          <SelectedCar
+            currentCar={currentCar}
+            resetCurrentCar={selectedCloseHandler}
+            onSubmit={submitHandler}
+          />
         )}
         <div className={styles.main__list}>
           {carsData.map((carObj, index) => {

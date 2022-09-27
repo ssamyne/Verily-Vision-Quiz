@@ -10,7 +10,7 @@ interface CanvasProps {
 }
 
 const Canvas: React.FC<CanvasProps> = ({ props, isAllow, passCoor }) => {
-  const { width, height } = props;
+  const { className } = props;
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -25,10 +25,8 @@ const Canvas: React.FC<CanvasProps> = ({ props, isAllow, passCoor }) => {
   const [currentCoordinate, setCurrentCoordinate] = useState<number[]>([]);
 
   useEffect(() => {
-    if (!isAllow) {
-      passCoor(currentCoordinate);
-    }
-  }, [isAllow, passCoor]);
+    passCoor(currentCoordinate);
+  }, [currentCoordinate, passCoor]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -36,6 +34,10 @@ const Canvas: React.FC<CanvasProps> = ({ props, isAllow, passCoor }) => {
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
 
     if (!ctx) return;
 
@@ -48,7 +50,7 @@ const Canvas: React.FC<CanvasProps> = ({ props, isAllow, passCoor }) => {
     const canvasOffset = canvas.getBoundingClientRect();
     canvasOffsetY.current = canvasOffset.top;
     canvasOffsetX.current = canvasOffset.left;
-  }, [width]);
+  }, []);
 
   const startDrawingHandler: React.MouseEventHandler<HTMLCanvasElement> = (
     event
@@ -117,8 +119,7 @@ const Canvas: React.FC<CanvasProps> = ({ props, isAllow, passCoor }) => {
   return (
     <canvas
       ref={canvasRef}
-      width={width}
-      height={height}
+      className={className}
       onMouseMove={drawRectangle}
       onMouseDown={startDrawingHandler}
       onMouseUp={stopDrawingHandler}
