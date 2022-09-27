@@ -65,7 +65,20 @@ const HomePage = () => {
   };
 
   // send brand and coordinate via api
-  const submitHandler = () => {};
+  const submitHandler = () => {
+    if (inputLabel.trim().length === 0) {
+      alert('please put the car brand');
+      return;
+    }
+    if (finalCoordinate.length === 0) {
+      alert('please cropping the car tag');
+      return;
+    }
+
+    console.log(finalCoordinate);
+    console.log(inputLabel);
+    alert('submit successfully');
+  };
 
   // for setting canvas dimension
   useEffect(() => {
