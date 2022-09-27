@@ -37,6 +37,7 @@ const HomePage = () => {
   // close selected item
   const selectedCloseHandler = () => {
     setCurrentCar(undefined);
+    setIsAllow(false);
   };
 
   const setLabelHandler: React.ChangeEventHandler<HTMLInputElement> = (
@@ -71,7 +72,7 @@ const HomePage = () => {
       return;
     }
     if (finalCoordinate.length === 0) {
-      alert('please cropping the car tag');
+      alert('please cropping the car tag plate');
       return;
     }
 
@@ -170,6 +171,7 @@ const HomePage = () => {
                   <option value='Fiat' />
                   <option value='Honda' />
                   <option value='Hyundai' />
+                  <option value='Porche' />
                   <option value='Tesla' />
                   <option value='Toyota' />
                   <option value='Volvo' />
