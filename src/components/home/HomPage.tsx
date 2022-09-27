@@ -1,7 +1,8 @@
 import styles from './HomePage.module.scss';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import Canvas from './Canvas';
 
 interface CarData {
   _id: string;
@@ -13,6 +14,8 @@ interface CarData {
 const HomePage = () => {
   const [carsData, setCarsData] = useState<CarData[]>([]);
   const [currentCar, setCurrentCar] = useState<CarData | undefined>();
+  const [inputLabel, setInputLabel] = useState('');
+  const imgRef = useRef<HTMLDivElement | null>(null);
 
   const selectHandler = (_id: string) => {
     const selectedCar = carsData.find((carData) => carData._id === _id);
@@ -21,6 +24,13 @@ const HomePage = () => {
 
   const selectedCloseHandler = () => {
     setCurrentCar(undefined);
+  };
+
+  const setLabelHandler: React.ChangeEventHandler<HTMLInputElement> = (
+    event
+  ) => {
+    const inputValue = event.target.value;
+    setInputLabel(inputValue);
   };
 
   useEffect(() => {
@@ -53,16 +63,37 @@ const HomePage = () => {
 
   return (
     <div className={styles.home}>
-      <div className={styles.home__main}>
+      <Canvas />
+      <div className={styles.home__main} ref={imgRef}>
         {currentCar && (
-          <div className={styles.main__selected} onClick={selectedCloseHandler}>
-            <div className={styles.main__selected_container}>
+          <div className={styles.selected}>
+            <div
+              className={styles.selected__backdrop}
+              onClick={selectedCloseHandler}
+            ></div>
+            <div className={styles.selected__container}>
               <img
-                className={styles.main__selected_image}
+                className={styles.selected__image}
                 src={currentCar.url}
                 alt='selected car'
               />
-              <div className={styles.main__selected_tools}></div>
+              <div className={styles.selected__tools}>
+                <h2 className={styles.tools__heading}>
+                  {currentCar.image_name}
+                </h2>
+                <label className={styles.tools__label} htmlFor={currentCar._id}>
+                  Brand &#x3A;
+                </label>
+                <input
+                  className={styles.tools__input}
+                  id={currentCar._id}
+                  type='text'
+                  placeholder='Car Brand'
+                  onChange={setLabelHandler}
+                  value={inputLabel}
+                />
+                <button className={styles.btn_main}>change</button>
+              </div>
             </div>
           </div>
         )}
