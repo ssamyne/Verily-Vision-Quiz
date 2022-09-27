@@ -12,16 +12,29 @@ interface CarData {
 }
 
 const HomePage = () => {
+  // store all car data from fetching
   const [carsData, setCarsData] = useState<CarData[]>([]);
+  // to get current car that should show in selected item
   const [currentCar, setCurrentCar] = useState<CarData | undefined>();
-  const [inputLabel, setInputLabel] = useState('');
+  // to get image width and heigh ref
   const imgRef = useRef<HTMLDivElement | null>(null);
+  // set canvas dimension dynamically
+  const [dimension, setDimention] = useState({ width: 0, height: 0 });
+  // for cropping button
+  const [isAllow, setIsAllow] = useState(false);
 
+  // brand input storage
+  const [inputLabel, setInputLabel] = useState('');
+  // Coordinate input storage
+  const [finalCoordinate, setFinalCoordinate] = useState<number[]>([]);
+
+  // handle selected item
   const selectHandler = (_id: string) => {
     const selectedCar = carsData.find((carData) => carData._id === _id);
     setCurrentCar(selectedCar);
   };
 
+  // close selected item
   const selectedCloseHandler = () => {
     setCurrentCar(undefined);
   };
@@ -33,6 +46,40 @@ const HomePage = () => {
     setInputLabel(inputValue);
   };
 
+  // control user are cropping or not
+  const startCroppingHandler = () => {
+    setIsAllow((prevState) => (prevState = !prevState));
+
+    if (!imgRef.current) return;
+
+    if (!isAllow) {
+      imgRef.current.style.cursor = 'crosshair';
+    } else {
+      imgRef.current.style.cursor = 'unset';
+    }
+  };
+
+  // store final coordinate
+  const setCoorHandler = (coordinate: number[]) => {
+    setFinalCoordinate(coordinate);
+  };
+
+  // send brand and coordinate via api
+  const submitHandler = () => {};
+
+  // for setting canvas dimension
+  useEffect(() => {
+    if (!imgRef.current) return;
+
+    setDimention({
+      width: imgRef.current.offsetWidth,
+      height: imgRef.current.offsetHeight,
+    });
+
+    imgRef.current.style.backgroundImage = `url(${currentCar?.url})`;
+  }, [currentCar]);
+
+  // fetching cars data first openning
   useEffect(() => {
     const sendRequest = async () => {
       try {
@@ -63,8 +110,7 @@ const HomePage = () => {
 
   return (
     <div className={styles.home}>
-      <Canvas />
-      <div className={styles.home__main} ref={imgRef}>
+      <div className={styles.home__main}>
         {currentCar && (
           <div className={styles.selected}>
             <div
@@ -72,12 +118,20 @@ const HomePage = () => {
               onClick={selectedCloseHandler}
             ></div>
             <div className={styles.selected__container}>
-              <img
-                className={styles.selected__image}
-                src={currentCar.url}
-                alt='selected car'
-              />
+              <div className={styles.selected__image} ref={imgRef}>
+                <Canvas
+                  props={{ width: dimension.width, height: dimension.height }}
+                  isAllow={isAllow}
+                  passCoor={setCoorHandler}
+                />
+              </div>
               <div className={styles.selected__tools}>
+                <button
+                  className={styles.btn_close}
+                  onClick={selectedCloseHandler}
+                >
+                  <img src='/images/close.png' alt='X' />
+                </button>
                 <h2 className={styles.tools__heading}>
                   {currentCar.image_name}
                 </h2>
@@ -89,10 +143,43 @@ const HomePage = () => {
                   id={currentCar._id}
                   type='text'
                   placeholder='Car Brand'
+                  autoComplete='off'
                   onChange={setLabelHandler}
                   value={inputLabel}
+                  required
+                  list='brand'
                 />
-                <button className={styles.btn_main}>change</button>
+                <datalist id='brand'>
+                  <option value='Audi' />
+                  <option value='BMW' />
+                  <option value='Chevrolet' />
+                  <option value='Fiat' />
+                  <option value='Fiat' />
+                  <option value='Honda' />
+                  <option value='Hyundai' />
+                  <option value='Tesla' />
+                  <option value='Toyota' />
+                  <option value='Volvo' />
+                </datalist>
+                <button
+                  className={styles.btn_main}
+                  onClick={startCroppingHandler}
+                >
+                  {!isAllow ? (
+                    <div>
+                      <img src='/images/crop.png' alt='crop' />
+                      <p>Crop Car Tag</p>
+                    </div>
+                  ) : (
+                    <div>
+                      <img src='/images/crop.png' alt='crop' />
+                      <p>Finished</p>
+                    </div>
+                  )}
+                </button>
+                <button className={styles.btn_submit} onClick={submitHandler}>
+                  Submit
+                </button>
               </div>
             </div>
           </div>

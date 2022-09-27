@@ -1,14 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
-import { start } from 'repl';
 
-import styles from './Canvas.module.scss';
+interface CanvasProps {
+  props: React.DetailedHTMLProps<
+    React.CanvasHTMLAttributes<HTMLCanvasElement>,
+    HTMLCanvasElement
+  >;
+  isAllow: boolean;
+  passCoor: (coordinate: number[]) => void;
+}
 
-type CanvasProps = React.DetailedHTMLProps<
-  React.CanvasHTMLAttributes<HTMLCanvasElement>,
-  HTMLCanvasElement
->;
-
-const Canvas: React.FC<CanvasProps> = (props) => {
+const Canvas: React.FC<CanvasProps> = ({ props, isAllow, passCoor }) => {
   const { width, height } = props;
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -21,6 +22,14 @@ const Canvas: React.FC<CanvasProps> = (props) => {
   const startX = useRef<number | null>(null);
   const startY = useRef<number | null>(null);
 
+  const [currentCoordinate, setCurrentCoordinate] = useState<number[]>([]);
+
+  useEffect(() => {
+    if (!isAllow) {
+      passCoor(currentCoordinate);
+    }
+  }, [isAllow, passCoor]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
 
@@ -30,20 +39,24 @@ const Canvas: React.FC<CanvasProps> = (props) => {
 
     if (!ctx) return;
 
-    ctx.lineCap = 'round';
+    ctx.lineCap = 'square';
     ctx.strokeStyle = '#eb4335';
-    ctx.lineWidth = 5;
+    ctx.lineWidth = 3;
 
     ctxRef.current = ctx;
 
     const canvasOffset = canvas.getBoundingClientRect();
     canvasOffsetY.current = canvasOffset.top;
     canvasOffsetX.current = canvasOffset.left;
-  }, []);
+  }, [width]);
 
   const startDrawingHandler: React.MouseEventHandler<HTMLCanvasElement> = (
     event
   ) => {
+    if (!isAllow) {
+      setIsDrawing(false);
+      return;
+    }
     event.preventDefault();
     event.stopPropagation();
 
@@ -86,6 +99,15 @@ const Canvas: React.FC<CanvasProps> = (props) => {
       rectWidth,
       rectHeight
     );
+
+    const lastCoordinate = [
+      startX.current,
+      startY.current,
+      rectWidth,
+      rectHeight,
+    ];
+
+    setCurrentCoordinate(lastCoordinate);
   };
 
   const stopDrawingHandler = () => {
@@ -95,7 +117,8 @@ const Canvas: React.FC<CanvasProps> = (props) => {
   return (
     <canvas
       ref={canvasRef}
-      className={styles.canvas}
+      width={width}
+      height={height}
       onMouseMove={drawRectangle}
       onMouseDown={startDrawingHandler}
       onMouseUp={stopDrawingHandler}
