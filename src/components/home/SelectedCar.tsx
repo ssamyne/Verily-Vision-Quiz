@@ -69,6 +69,7 @@ const SelectedCar: React.FC<SelectedCarProps> = ({
     setIsAllow(false);
   };
 
+  // onsubmit pass data to parent component
   const onSubmitHandler = () => {
     if (
       inputLabel.trim().length === 0 &&
@@ -83,6 +84,7 @@ const SelectedCar: React.FC<SelectedCarProps> = ({
       return;
     }
 
+    // submit both value
     const finalCarData: SubmitCarData = {
       _id: currentCar._id,
       image_name: currentCar.image_name,
@@ -90,6 +92,7 @@ const SelectedCar: React.FC<SelectedCarProps> = ({
       plate: { coor: finalCoordinate },
     };
 
+    // for submit only new coordinate
     if (
       currentLabel?.plate.coor[0] !== undefined &&
       currentLabel?.plate.coor.length !== 0 &&
@@ -98,6 +101,7 @@ const SelectedCar: React.FC<SelectedCarProps> = ({
       finalCarData.plate.coor = currentLabel.plate.coor;
     }
 
+    // for submit only label
     if (
       currentLabel?.image_label.trim().length !== 0 &&
       currentLabel?.image_label &&
@@ -140,7 +144,6 @@ const SelectedCar: React.FC<SelectedCarProps> = ({
               }}
               isAllow={isAllow}
               passCoor={setCoorHandler}
-              currentCar={currentCar}
               lastCoor={currentLabel?.plate.coor}
             />
           </div>

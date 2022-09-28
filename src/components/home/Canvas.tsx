@@ -1,13 +1,10 @@
-import { useState, useRef, useEffect, useLayoutEffect } from 'react';
-
-import { CarData } from './HomPage';
+import { useState, useRef, useEffect } from 'react';
 interface CanvasProps {
   props: React.DetailedHTMLProps<
     React.CanvasHTMLAttributes<HTMLCanvasElement>,
     HTMLCanvasElement
   >;
   isAllow: boolean;
-  currentCar: CarData;
   passCoor: (coordinate: number[]) => void;
   lastCoor: number[] | undefined;
 }
@@ -15,7 +12,6 @@ interface CanvasProps {
 const Canvas: React.FC<CanvasProps> = ({
   props,
   isAllow,
-  currentCar,
   passCoor,
   lastCoor,
 }) => {
@@ -39,7 +35,8 @@ const Canvas: React.FC<CanvasProps> = ({
     passCoor(currentCoordinate);
   }, [currentCoordinate, passCoor]);
 
-  useLayoutEffect(() => {
+  // initialize canvas rerendering when img loaded
+  useEffect(() => {
     const canvas = canvasRef.current;
 
     if (!canvas) return;

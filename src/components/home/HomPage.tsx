@@ -32,6 +32,7 @@ const HomePage = () => {
     setCurrentCar(selectedCar);
   };
 
+  // handle close selected item
   const selectedCloseHandler = (resetCar: undefined) => {
     setCurrentCar(resetCar);
   };
@@ -102,6 +103,7 @@ const HomePage = () => {
     readData();
   }, []);
 
+  // getting current label via api
   useEffect(() => {
     const getCurrentLabel = async () => {
       try {
