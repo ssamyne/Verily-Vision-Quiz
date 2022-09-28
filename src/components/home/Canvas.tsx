@@ -1,16 +1,25 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 
+import { CarData } from './HomPage';
 interface CanvasProps {
   props: React.DetailedHTMLProps<
     React.CanvasHTMLAttributes<HTMLCanvasElement>,
     HTMLCanvasElement
   >;
   isAllow: boolean;
+  currentCar: CarData;
   passCoor: (coordinate: number[]) => void;
+  lastCoor: number[] | undefined;
 }
 
-const Canvas: React.FC<CanvasProps> = ({ props, isAllow, passCoor }) => {
-  const { className } = props;
+const Canvas: React.FC<CanvasProps> = ({
+  props,
+  isAllow,
+  currentCar,
+  passCoor,
+  lastCoor,
+}) => {
+  const { className, width, height } = props;
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -22,13 +31,15 @@ const Canvas: React.FC<CanvasProps> = ({ props, isAllow, passCoor }) => {
   const startX = useRef<number | null>(null);
   const startY = useRef<number | null>(null);
 
-  const [currentCoordinate, setCurrentCoordinate] = useState<number[]>([]);
+  const [currentCoordinate, setCurrentCoordinate] = useState<number[]>(
+    lastCoor ? lastCoor : []
+  );
 
   useEffect(() => {
     passCoor(currentCoordinate);
   }, [currentCoordinate, passCoor]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const canvas = canvasRef.current;
 
     if (!canvas) return;
@@ -50,7 +61,7 @@ const Canvas: React.FC<CanvasProps> = ({ props, isAllow, passCoor }) => {
     const canvasOffset = canvas.getBoundingClientRect();
     canvasOffsetY.current = canvasOffset.top;
     canvasOffsetX.current = canvasOffset.left;
-  }, []);
+  }, [width, height]);
 
   const startDrawingHandler: React.MouseEventHandler<HTMLCanvasElement> = (
     event

@@ -8,21 +8,29 @@ import { CarData, SubmitCarData } from './HomPage';
 
 interface SelectedCarProps {
   currentCar: CarData;
+  currentLabel: SubmitCarData | undefined;
   resetCurrentCar: (resetCar: undefined) => void;
   onSubmit: (finalCarData: SubmitCarData) => void;
 }
 
 const SelectedCar: React.FC<SelectedCarProps> = ({
   currentCar,
+  currentLabel,
   resetCurrentCar,
   onSubmit,
 }) => {
   // brand input storage
-  const [inputLabel, setInputLabel] = useState('');
+  const [inputLabel, setInputLabel] = useState(
+    currentLabel?.image_label ? currentLabel.image_label : ''
+  );
   // Coordinate input storage
-  const [finalCoordinate, setFinalCoordinate] = useState<number[]>([]);
+  const [finalCoordinate, setFinalCoordinate] = useState<number[]>(
+    currentLabel?.plate.coor ? currentLabel.plate.coor : []
+  );
   // to get image width and heigh ref
   const imgRef = useRef<HTMLImageElement | null>(null);
+  // current canvas dimension
+  const [dimension, setDimension] = useState({ width: 0, height: 0 });
   // for cropping button
   const [isAllow, setIsAllow] = useState(false);
 
@@ -33,17 +41,21 @@ const SelectedCar: React.FC<SelectedCarProps> = ({
     setInputLabel(inputValue);
   };
 
+  // set canvas dimension as per img dimension
+  const imgLoadHandler: React.ReactEventHandler<HTMLImageElement> = (event) => {
+    const src = event.currentTarget.src;
+    if (src && imgRef.current) {
+      const canvasDimension = {
+        width: imgRef.current.offsetWidth,
+        height: imgRef.current.offsetHeight,
+      };
+      setDimension(canvasDimension);
+    }
+  };
+
   // control user are cropping or not
   const startCroppingHandler = () => {
     setIsAllow((prevState) => (prevState = !prevState));
-
-    if (!imgRef.current) return;
-
-    if (!isAllow) {
-      imgRef.current.style.cursor = 'crosshair';
-    } else {
-      imgRef.current.style.cursor = 'unset';
-    }
   };
 
   // store final coordinate
@@ -58,11 +70,15 @@ const SelectedCar: React.FC<SelectedCarProps> = ({
   };
 
   const onSubmitHandler = () => {
-    if (inputLabel.trim().length === 0) {
+    if (
+      inputLabel.trim().length === 0 &&
+      currentLabel?.image_label.trim().length === 0
+    ) {
       alert('please put the car brand');
       return;
     }
-    if (finalCoordinate.length === 0) {
+
+    if (finalCoordinate.length === 0 && currentLabel?.plate.coor.length === 0) {
       alert('please cropping the car tag plate');
       return;
     }
@@ -73,6 +89,22 @@ const SelectedCar: React.FC<SelectedCarProps> = ({
       image_label: inputLabel,
       plate: { coor: finalCoordinate },
     };
+
+    if (
+      currentLabel?.plate.coor[0] !== undefined &&
+      currentLabel?.plate.coor.length !== 0 &&
+      finalCoordinate[0] === undefined
+    ) {
+      finalCarData.plate.coor = currentLabel.plate.coor;
+    }
+
+    if (
+      currentLabel?.image_label.trim().length !== 0 &&
+      currentLabel?.image_label &&
+      inputLabel.trim().length === 0
+    ) {
+      finalCarData.image_label = currentLabel.image_label;
+    }
 
     onSubmit(finalCarData);
     setInputLabel('');
@@ -87,14 +119,29 @@ const SelectedCar: React.FC<SelectedCarProps> = ({
       ></div>
       <div className={styles.selected__container}>
         <div className={styles.selected__image}>
-          <div className={styles.selected__image_container} ref={imgRef}>
-            <img src={currentCar.url} alt='selected car' />
+          <div
+            className={
+              !isAllow
+                ? styles.selected__image_container
+                : `${styles.selected__image_container} ${styles.cursor_crosshair}`
+            }
+          >
+            <img
+              src={currentCar.url}
+              alt='selected car'
+              ref={imgRef}
+              onLoad={imgLoadHandler}
+            />
             <Canvas
               props={{
                 className: styles.selected__image_canvas,
+                width: dimension.width,
+                height: dimension.height,
               }}
               isAllow={isAllow}
               passCoor={setCoorHandler}
+              currentCar={currentCar}
+              lastCoor={currentLabel?.plate.coor}
             />
           </div>
         </div>
@@ -104,7 +151,7 @@ const SelectedCar: React.FC<SelectedCarProps> = ({
           </button>
           <h2 className={styles.tools__heading}>{currentCar.image_name}</h2>
           <label className={styles.tools__label} htmlFor={currentCar._id}>
-            Brand &#x3A;
+            Brand &#x3A; {currentLabel?.image_label}
           </label>
           <input
             className={styles.tools__input}
@@ -118,6 +165,16 @@ const SelectedCar: React.FC<SelectedCarProps> = ({
             list='brand'
           />
           <Datalist />
+          {currentLabel?.plate && (
+            <div>
+              <h3>Last Coordinate</h3>
+              <p>
+                &#91;{' '}
+                {`x = ${currentLabel.plate.coor[0]}, y = ${currentLabel.plate.coor[1]}, width = ${currentLabel.plate.coor[2]}, heigth = ${currentLabel.plate.coor[3]}`}{' '}
+                &#93;
+              </p>
+            </div>
+          )}
           <button className={styles.btn_main} onClick={startCroppingHandler}>
             {!isAllow ? (
               <div>

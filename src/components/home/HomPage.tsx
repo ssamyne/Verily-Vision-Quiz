@@ -3,7 +3,7 @@ import styles from './HomePage.module.scss';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import SelectedCar from './SelectedCar';
-
+import { newId } from './newId';
 export interface CarData {
   _id: string;
   url: string;
@@ -23,6 +23,8 @@ const HomePage = () => {
   const [carsData, setCarsData] = useState<CarData[]>([]);
   // to get current car that should show in selected item
   const [currentCar, setCurrentCar] = useState<CarData | undefined>();
+  // to get current label from api
+  const [currentLabel, setCurrentLabel] = useState<SubmitCarData | undefined>();
 
   // handle selected item
   const selectHandler = (_id: string) => {
@@ -36,14 +38,37 @@ const HomePage = () => {
 
   // send brand and coordinate via api
   const submitHandler = (finalCarData: SubmitCarData) => {
-    console.log(finalCarData);
+    const postRequest = async () => {
+      try {
+        const response = await axios.post(
+          'http://13.213.36.162:3000/api/label/v1/create_label',
+          {
+            image_name: finalCarData.image_name,
+            image_label: finalCarData.image_label,
+            plate: { coor: finalCarData.plate.coor },
+          }
+        );
 
+        if (!response) {
+          throw new Error('Something went wrong');
+        }
+
+        const data = await response.data;
+        console.log(data);
+
+        return data;
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    postRequest();
     alert('submit successfully');
   };
 
   // fetching cars data first openning
   useEffect(() => {
-    const sendRequest = async () => {
+    const getRequest = async () => {
       try {
         const response = await axios.get(
           'http://13.213.36.162:3000/api/image/v1'
@@ -62,13 +87,50 @@ const HomePage = () => {
     };
 
     const readData = async () => {
-      const data = await sendRequest();
+      const data = await getRequest();
+      const updatedCarsId = [];
+      for (let i = 0; i < data.length; i++) {
+        const newData = data[i];
+        newData._id = newId[i];
 
-      setCarsData(data);
+        updatedCarsId.push(newData);
+      }
+
+      setCarsData(updatedCarsId);
     };
 
     readData();
   }, []);
+
+  useEffect(() => {
+    const getCurrentLabel = async () => {
+      try {
+        if (!currentCar) return;
+
+        const response = await axios.get(
+          `http://13.213.36.162:3000/api/label/v1/${currentCar._id}`
+        );
+
+        if (!response) {
+          throw new Error('Something went wrong');
+        }
+
+        const data = await response.data;
+
+        return data;
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const readLabel = async () => {
+      const data = await getCurrentLabel();
+
+      setCurrentLabel(data);
+    };
+
+    readLabel();
+  }, [currentLabel, currentCar]);
 
   return (
     <div className={styles.home}>
@@ -76,6 +138,7 @@ const HomePage = () => {
         {currentCar && (
           <SelectedCar
             currentCar={currentCar}
+            currentLabel={currentLabel}
             resetCurrentCar={selectedCloseHandler}
             onSubmit={submitHandler}
           />
