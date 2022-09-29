@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+
 interface CanvasProps {
   props: React.DetailedHTMLProps<
     React.CanvasHTMLAttributes<HTMLCanvasElement>,
@@ -21,31 +22,32 @@ const Canvas: React.FC<CanvasProps> = ({
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
 
   const [isDrawing, setIsDrawing] = useState(false);
-
   const canvasOffsetX = useRef<number | null>(null);
   const canvasOffsetY = useRef<number | null>(null);
   const startX = useRef<number | null>(null);
   const startY = useRef<number | null>(null);
 
-  const [currentCoordinate, setCurrentCoordinate] = useState<number[]>(
-    lastCoor ? lastCoor : []
-  );
+  const [currentCoordinate, setCurrentCoordinate] = useState<number[]>([]);
 
   useEffect(() => {
-    passCoor(currentCoordinate);
-  }, [currentCoordinate, passCoor]);
+    if (currentCoordinate.length !== 0) {
+      passCoor(currentCoordinate);
+    } else if (lastCoor) {
+      passCoor(lastCoor);
+    }
+  }, [currentCoordinate, passCoor, lastCoor]);
 
   // initialize canvas rerendering when img loaded
   useEffect(() => {
     const canvas = canvasRef.current;
-
+    if (currentCoordinate.length !== 0) return;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     canvas.style.width = '100%';
     canvas.style.height = '100%';
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    canvas.width = 1000;
+    canvas.height = 700;
 
     if (!ctx) return;
 
@@ -58,7 +60,16 @@ const Canvas: React.FC<CanvasProps> = ({
     const canvasOffset = canvas.getBoundingClientRect();
     canvasOffsetY.current = canvasOffset.top;
     canvasOffsetX.current = canvasOffset.left;
-  }, [width, height]);
+
+    if (lastCoor) {
+      ctxRef.current.strokeRect(
+        lastCoor[0],
+        lastCoor[1],
+        lastCoor[2],
+        lastCoor[3]
+      );
+    }
+  }, [width, height, lastCoor, currentCoordinate]);
 
   const startDrawingHandler: React.MouseEventHandler<HTMLCanvasElement> = (
     event
@@ -72,9 +83,14 @@ const Canvas: React.FC<CanvasProps> = ({
 
     if (!canvasOffsetX.current || !canvasOffsetY.current) return;
 
-    startX.current = event.clientX - canvasOffsetX.current;
-    startY.current = event.clientY - canvasOffsetY.current;
+    const mouseX = event.clientX - canvasOffsetX.current;
+    const mouseY = event.clientY - canvasOffsetY.current;
 
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    startX.current = (mouseX * canvas.width) / canvas.clientWidth;
+    startY.current = (mouseY * canvas.height) / canvas.clientHeight;
     setIsDrawing(true);
   };
 
@@ -89,10 +105,17 @@ const Canvas: React.FC<CanvasProps> = ({
     const newMouseX = event.clientX - canvasOffsetX.current;
     const newMouseY = event.clientY - canvasOffsetY.current;
 
+    const canvas = canvasRef.current;
+
+    if (!canvas) return;
+
+    const newCanvasX = (newMouseX * canvas.width) / canvas.clientWidth;
+    const newCanvasY = (newMouseY * canvas.height) / canvas.clientHeight;
+
     if (!startX.current || !startY.current) return;
 
-    const rectWidth = newMouseX - startX.current;
-    const rectHeight = newMouseY - startY.current;
+    const rectWidth = newCanvasX - startX.current;
+    const rectHeight = newCanvasY - startY.current;
 
     if (!ctxRef.current || !canvasRef.current) return;
 
@@ -125,14 +148,18 @@ const Canvas: React.FC<CanvasProps> = ({
   };
 
   return (
-    <canvas
-      ref={canvasRef}
-      className={className}
-      onMouseMove={drawRectangle}
-      onMouseDown={startDrawingHandler}
-      onMouseUp={stopDrawingHandler}
-      onMouseLeave={stopDrawingHandler}
-    ></canvas>
+    <div>
+      <canvas
+        ref={canvasRef}
+        width={width}
+        height={height}
+        className={className}
+        onMouseMove={drawRectangle}
+        onMouseDown={startDrawingHandler}
+        onMouseUp={stopDrawingHandler}
+        onMouseLeave={stopDrawingHandler}
+      ></canvas>
+    </div>
   );
 };
 

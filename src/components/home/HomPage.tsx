@@ -55,7 +55,6 @@ const HomePage = () => {
         }
 
         const data = await response.data;
-        console.log(data);
 
         return data;
       } catch (error) {

@@ -113,3 +113,9 @@
     cursor: crosshair;
   }
 }
+
+.datalist {
+  max-height: 20rem;
+  width: 100%;
+  overflow: scroll;
+}
