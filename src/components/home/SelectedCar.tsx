@@ -173,7 +173,13 @@ const SelectedCar: React.FC<SelectedCarProps> = ({
               <h3>Last Coordinate</h3>
               <p>
                 &#91;{' '}
-                {`x = ${currentLabel.plate.coor[0]}, y = ${currentLabel.plate.coor[1]}, width = ${currentLabel.plate.coor[2]}, heigth = ${currentLabel.plate.coor[3]}`}{' '}
+                {`x = ${currentLabel.plate.coor[0].toFixed(
+                  2
+                )}, y = ${currentLabel.plate.coor[1].toFixed(
+                  2
+                )}, width = ${currentLabel.plate.coor[2].toFixed(
+                  2
+                )}, heigth = ${currentLabel.plate.coor[3].toFixed(2)}`}{' '}
                 &#93;
               </p>
             </div>

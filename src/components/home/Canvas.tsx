@@ -29,6 +29,7 @@ const Canvas: React.FC<CanvasProps> = ({
 
   const [currentCoordinate, setCurrentCoordinate] = useState<number[]>([]);
 
+  // pass coordinate to parent component
   useEffect(() => {
     if (currentCoordinate.length !== 0) {
       passCoor(currentCoordinate);
@@ -40,9 +41,12 @@ const Canvas: React.FC<CanvasProps> = ({
   // initialize canvas rerendering when img loaded
   useEffect(() => {
     const canvas = canvasRef.current;
+
+    // break side effect from drawing new rect
     if (currentCoordinate.length !== 0) return;
     if (!canvas) return;
 
+    // set canvas
     const ctx = canvas.getContext('2d');
     canvas.style.width = '100%';
     canvas.style.height = '100%';
@@ -51,6 +55,7 @@ const Canvas: React.FC<CanvasProps> = ({
 
     if (!ctx) return;
 
+    // set property
     ctx.lineCap = 'square';
     ctx.strokeStyle = '#eb4335';
     ctx.lineWidth = 3;
@@ -61,6 +66,7 @@ const Canvas: React.FC<CanvasProps> = ({
     canvasOffsetY.current = canvasOffset.top;
     canvasOffsetX.current = canvasOffset.left;
 
+    // draw last coordinate of car plate
     if (lastCoor) {
       ctxRef.current.strokeRect(
         lastCoor[0],
@@ -89,6 +95,7 @@ const Canvas: React.FC<CanvasProps> = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // convert screen coordinate to canvas coordinate
     startX.current = (mouseX * canvas.width) / canvas.clientWidth;
     startY.current = (mouseY * canvas.height) / canvas.clientHeight;
     setIsDrawing(true);
@@ -109,6 +116,7 @@ const Canvas: React.FC<CanvasProps> = ({
 
     if (!canvas) return;
 
+    // convert screen coordinate to canvas coordinate
     const newCanvasX = (newMouseX * canvas.width) / canvas.clientWidth;
     const newCanvasY = (newMouseY * canvas.height) / canvas.clientHeight;
 
@@ -119,6 +127,7 @@ const Canvas: React.FC<CanvasProps> = ({
 
     if (!ctxRef.current || !canvasRef.current) return;
 
+    // clear last coordinate plate
     ctxRef.current.clearRect(
       0,
       0,
@@ -126,6 +135,7 @@ const Canvas: React.FC<CanvasProps> = ({
       canvasRef.current.height
     );
 
+    // draw new coordinate
     ctxRef.current.strokeRect(
       startX.current,
       startY.current,
@@ -140,6 +150,7 @@ const Canvas: React.FC<CanvasProps> = ({
       rectHeight,
     ];
 
+    // store last coordinate
     setCurrentCoordinate(lastCoordinate);
   };
 
